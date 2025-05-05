@@ -1,0 +1,33 @@
+[project]
+name = "chatbot-multimodal"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "black>=25.1.0",
+    "chainlit>=2.5.5",
+    "fastapi>=0.115.12",
+    "langchain>=0.3.25",
+    "pydantic>=2.11.4",
+    "python-dotenv>=1.1.0",
+    "ruff>=0.11.8",
+    "uvicorn>=0.34.2",
+]
+
+[tool.black]
+line-length = 88
+target-version = ["py310"]
+skip-string-normalization = false  # Use double quotes by default
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]  # E: pycodestyle, F: pyflakes, I: isort
+ignore = []
+
+[tool.ruff.format]
+quote-style = "double"
+
