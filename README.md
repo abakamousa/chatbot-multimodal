@@ -13,6 +13,8 @@ This is a multimodal chatbot application that leverages **Chainlit**, **Langchai
 - [Usage](#usage)
 - [Project Structure](#project-structure)
 - [License](#license)
+- [Author](#author)
+
 
 ## Overview
 
