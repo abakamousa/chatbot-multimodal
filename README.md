@@ -121,6 +121,10 @@ Here's an updated overview of the project directory structure:
 
 
 ```
+## License
+
+xxx
+
 ## Author
 
 
