@@ -131,10 +131,9 @@ xxx
 
 
 
-```yaml
-Author: 
 
-- **ABOUBAKAR Moussa ** – AI Engineer  
+## Author: 
+
+- **ABOUBAKAR Moussa** – AI Engineer  
   [GitHub](https://github.com/abakamousa/) · [LinkedIn](https://www.linkedin.com/in/aboubakar-moussa/)
 
-```
