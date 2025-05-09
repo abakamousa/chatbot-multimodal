@@ -131,9 +131,6 @@ xxx
 
 
 
-
-## Author: 
-
 - **ABOUBAKAR Moussa** – AI Engineer  
   [GitHub](https://github.com/abakamousa/) · [LinkedIn](https://www.linkedin.com/in/aboubakar-moussa/)
 
