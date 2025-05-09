@@ -27,16 +27,19 @@ class AzureOpenAIWrapper:
         )
 
         
-    def chat_completion(self, messages: List[dict], temperature: float = 0.7, max_tokens: int = 800) -> str:
+   
+    def chat_completion(self, user_input: str, temperature: float = 0.2, max_tokens: int = 800) -> str:
         try:
             response = self.client.chat.completions.create(
-                #deployment_id=self.deployment_name,
                 model=self.deployment_name,
-                messages=messages,
+                messages=[
+                    {"role": "system", "content": "You are a helpful assistant."},
+                    {"role": "user", "content": user_input}
+                ],
                 temperature=temperature,
                 max_tokens=max_tokens
             )
-            return response.choices[0].message.content.strip()
+            return response.choices[0].message.content 
         except Exception as e:
             logger.exception("Failed to generate chat completion")
             raise RuntimeError(f"Chat completion error: {str(e)}")

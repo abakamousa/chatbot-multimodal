@@ -1,13 +1,31 @@
-from .base import Validator
+# app/llm_validators/answer_relevance.py
+
+from app.llm_validators.base import Validator
+from app.services.azure_openai import AzureOpenAIWrapper
+from app.utils.helpers import logger
+
 
 class AnswerRelevanceValidator(Validator):
-    """Simple check for empty or irrelevant answers."""
+    def __init__(self, openai_service: AzureOpenAIWrapper):
+        self.openai_service = openai_service
 
-    def validate(self, text: str) -> dict:
-        if not text or len(text.strip()) < 5:
-            return {"valid": False, "reason": "Answer is too short or empty."}
+    def validate(self, question: str, answer: str) -> bool:
+        """Validates whether the given answer is relevant to the question."""
+        prompt = (
+            "You are a helpful assistant evaluating the relevance of answers given to user questions.\n\n"
+            "Evaluate whether the following answer correctly and directly addresses the user's question.\n\n"
+            "If the answer is relevant, respond with 'YES'. If it is not relevant, respond with 'NO'.\n\n"
+            f"Question:\n\"{question}\"\n\n"
+            f"Answer:\n\"{answer}\""
+        )
 
-        if "I'm not sure" in text or "As an AI language model" in text:
-            return {"valid": False, "reason": "Answer may be vague or irrelevant."}
+        try:
+            response = self.openai_service.chat_completion(prompt)
+            
 
-        return {"valid": True}
+            logger.info(f"Answer Relevance Validator response: {response}")
+            return response
+
+        except Exception as e:
+            logger.error(f"Error during answer relevance validation: {e}")
+            return False  # Treat as irrelevant if evaluation fails

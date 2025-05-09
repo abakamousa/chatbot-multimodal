@@ -82,3 +82,4 @@ def synthesize_speech(text: str, voice: str = "en-US-JennyNeural") -> bytes:
             raise RuntimeError("Speech synthesis failed.")
     except ImportError:
         raise ImportError("Please install 'azure-cognitiveservices-speech' for TTS support.")
+

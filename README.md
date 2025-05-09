@@ -95,7 +95,7 @@ Once the application is running, you can interact with the chatbot via the provi
 
 ## Project Structure
 
-Here's an updated overview of the project directory structure:
+Here's an overview of the project directory structure:
 
 ```bash
  chatbot-multimodal/

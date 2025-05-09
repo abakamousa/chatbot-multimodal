@@ -1,43 +1,57 @@
+# app/chainlit_app.py
+
 import chainlit as cl
 from app.services.azure_openai import AzureOpenAIWrapper
 from app.llm_validators.prompt_injection import PromptInjectionValidator
 from app.llm_validators.answer_relevance import AnswerRelevanceValidator
+from app.utils.helpers import logger
+from app.config.settings import get_settings
 
-# Initialize services and validators
-ai = AzureOpenAIWrapper()
-input_validators = [PromptInjectionValidator()]
-output_validators = [AnswerRelevanceValidator()]
 
-def run_validators(text: str, validators):
-    for validator in validators:
-        result = validator.validate(text)
-        if not result.get("valid", True):
-            return result  # Return first failure
-    return {"valid": True}
+
+
+
+settings = get_settings()
+
+# Initialize AzureOpenAIWrapper
+openai_service = AzureOpenAIWrapper()
+
+# Initialize the Validators
+prompt_injection_validator = PromptInjectionValidator(openai_service=openai_service)
+answer_relevance_validator = AnswerRelevanceValidator(openai_service=openai_service)
+
+
+
+@cl.on_message
+async def on_message(message: str):
+    """This function handles the incoming messages and performs validation checks."""
+    logger.info(f"Received message: {message}")
+
+    # 1. Validate prompt injection
+    if prompt_injection_validator.validate(message)== "YES":
+        logger.warning("Potential prompt injection detected.")
+        await cl.Message(content="Potential prompt injection detected. Please rephrase your request.").send()
+        return
+
+    # 2. Generate a response from the model using Azure OpenAI
+    try:
+        user_query = message.content
+        response = openai_service.chat_completion(user_query)
+    except Exception as e:
+        logger.error(f"Error generating response: {e}")
+        await cl.Message(content="Sorry, something went wrong while processing your request.").send()
+        return
+
+    # 3. Validate answer relevance (optional - this is an additional step to make sure the response is valid)
+    if answer_relevance_validator.validate(message, response) == "YES":
+        await cl.Message(content="The response seems irrelevant to your query. Please try again.").send()
+        return
+
+    # 4. Send the response back to the user
+    await cl.Message(content=response).send()
+
 
 @cl.on_chat_start
 async def on_chat_start():
-    await cl.Message(content="👋 Hello! I'm your AI assistant. Ask me anything.").send()
-
-@cl.on_message
-async def handle_message(message: cl.Message):
-    # Validate the user input before sending to model
-    input_check = run_validators(message.content, input_validators)
-    if not input_check["valid"]:
-        await cl.Message(content=f"⚠️ Input blocked: {input_check['reason']}").send()
-        return
-
-    try:
-        messages = [{"role": "user", "content": message.content}]
-        response = ai.chat_completion(messages)
-
-        # Validate model response
-        output_check = run_validators(response, output_validators)
-        if not output_check["valid"]:
-            await cl.Message(content=f"⚠️ Response flagged: {output_check['reason']}").send()
-            return
-
-        await cl.Message(content=response).send()
-
-    except Exception as e:
-        await cl.Message(content=f"❌ Error: {str(e)}").send()
+    """This function handles the initialization when the chat starts."""
+    await cl.Message(content="Hello! How can I assist you today?").send()
