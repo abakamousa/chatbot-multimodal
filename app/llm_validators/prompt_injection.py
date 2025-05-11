@@ -2,7 +2,9 @@
 
 from app.llm_validators.base import Validator
 from app.services.azure_openai import AzureOpenAIWrapper
-from app.utils.helpers import logger
+from app.utils.helpers import get_logger
+
+logger = get_logger(__name__)
 
 class PromptInjectionValidator(Validator):
     def __init__(self, openai_service: AzureOpenAIWrapper):

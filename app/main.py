@@ -1,21 +1,28 @@
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-from app.services.azure_openai import AzureOpenAIWrapper
+import chainlit as cl
+import httpx
+import os
 
-app = FastAPI()
-ai = AzureOpenAIWrapper()
+AZURE_FUNCTION_URL = "http://localhost:7071/api/chatbot" #os.getenv("AZURE_FUNCTION_URL")  # e.g., "https://your-func-name.azurewebsites.net/api/chatbot"
 
-class ChatRequest(BaseModel):
-    message: str
+@cl.on_chat_start
+async def on_chat_start():
+    await cl.Message(content="👋 Hello! I'm your assistant. How can I help you today?").send()
 
-class ChatResponse(BaseModel):
-    response: str
+@cl.on_message
+async def on_message(message: cl.Message):
+    async with httpx.AsyncClient() as client:
+        try:
+            res = await client.post(
+                AZURE_FUNCTION_URL,
+                json={"message": message.content},
+                timeout=30
+            )
+            res.raise_for_status()
+            data = res.json()
+            reply = data.get("response", "No response.")
+        except httpx.HTTPStatusError as e:
+            reply = f"❌ Error: {e.response.json().get('error', str(e))}"
+        except Exception as e:
+            reply = f"⚠️ Unexpected error: {str(e)}"
 
-@app.post("/api/chat", response_model=ChatResponse)
-def chat_endpoint(request: ChatRequest):
-    try:
-        messages = [{"role": "user", "content": request.message}]
-        response = ai.chat_completion(messages)
-        return ChatResponse(response=response)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    await cl.Message(content=f"💬 {reply}").send()

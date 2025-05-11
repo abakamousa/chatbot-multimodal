@@ -1,6 +1,6 @@
 # Chatbot Multimodal Application
 
-This is a multimodal chatbot application that leverages **Chainlit**, **Langchain**, **Azure OpenAI**, **Uvicorn**, and other technologies to provide a powerful conversational AI experience.
+
 
 ## Table of Contents
 - [Overview](#overview)
@@ -10,32 +10,72 @@ This is a multimodal chatbot application that leverages **Chainlit**, **Langchai
   - [1. Prerequisites](#1-prerequisites)
   - [2. Setup Instructions](#2-setup-instructions)
   - [3. Running the Application](#3-running-the-application)
+  - [4. Running the Azure Function](#4-running-the-azure-function)
 - [Usage](#usage)
+- [Troubleshooting](#troubleshooting)
 - [Project Structure](#project-structure)
 - [License](#license)
 - [Author](#author)
 
 
-## Overview
 
-This chatbot integrates multiple language models (LLMs) with additional features like **Prompt Injection Validation** and **Answer Relevance Validation** to ensure high-quality and relevant responses. The backend is powered by **Azure OpenAI**, and the app is hosted using **Uvicorn**.
+## 📘 Project Overview
 
-## Features
+**Chatbot Multimodal** is an intelligent, Azure-powered RAG (Retrieval-Augmented Generation) system built to handle both text and image-based queries. It leverages enterprise-grade capabilities like **Azure OpenAI**, **FAISS vector search**, and **LangChain** to provide accurate, context-aware responses based on a knowledge base of PDF documents and optional image inputs. It includes additional features like **Prompt Injection Validation** and **Answer Relevance Validation** to ensure high-quality and relevant responses.
 
-- **Multimodal Chatbot**: Interact with a chatbot powered by advanced language models.
-- **Azure OpenAI Integration**: Securely connect to Azure’s AI services for text generation and analysis.
-- **Prompt Injection & Answer Relevance Validation**: Ensures that user inputs and outputs are secure and relevant.
-- **Scalable and Fast**: Run locally or deploy to any cloud platform using **Uvicorn** and **Chainlit**.
-- **Simple Setup**: Easily deploy and start the application with minimal dependencies.
+### 💡 Key Features
 
-## Technologies Used
+- **Document Intelligence**  
+  Ingests and processes PDFs using LangChain and PDFMiner.
 
-- **Chainlit**: For handling chat interfaces.
-- **Langchain**: For chaining different models and processing tasks.
-- **Azure OpenAI**: For utilizing OpenAI's models via Azure API.
-- **Uvicorn**: ASGI server for fast and asynchronous handling of HTTP requests.
-- **Pydantic**: For validating environment variables and application settings.
-- **Azure Functions**: For serverless functions (if applicable).
+- **RAG Pipeline**  
+  Combines document retrieval with Azure OpenAI’s large language model for informed, contextual answers.
+
+- **Vector Store with FAISS**  
+  Embeds and indexes documents for efficient semantic search.
+
+- **Image Captioning (Optional)**  
+  Enhances responses by generating and incorporating captions for user-provided images.
+
+- **Modern Chat Interface**  
+  Interact through a Chainlit-powered chat UI for a seamless user experience.
+
+- **Serverless API Integration**  
+  Deployable via Azure Functions for scalable and cloud-native access.
+
+
+
+## 🧰 Technologies Used
+
+### ⚙️ Core Technologies
+![Python](https://img.shields.io/badge/Python-3.12-blue?logo=python)
+![Azure Functions](https://img.shields.io/badge/Azure%20Functions-Serverless-blue?logo=microsoft-azure)
+![uv](https://img.shields.io/badge/uv-package--manager-4B8BBE)
+
+### 🤖 AI & Embeddings
+![Azure OpenAI](https://img.shields.io/badge/Azure%20OpenAI-GPT--powered-blue?logo=openai)
+![LangChain](https://img.shields.io/badge/LangChain-RAG-yellowgreen?logo=python)
+![FAISS](https://img.shields.io/badge/FAISS-Vector%20Search-green)
+
+### 📄 Document Handling
+![PDFMiner](https://img.shields.io/badge/pdfminer--six-PDF%20Parsing-lightgrey)
+![LangChain Loader](https://img.shields.io/badge/LangChain%20Loaders-Document%20Utils-blueviolet)
+![Text Splitter](https://img.shields.io/badge/Text%20Splitter-Chunking-yellow)
+
+### 🖼️ Image & Multimodal
+![Image Captioning](https://img.shields.io/badge/Image%20Captioning-Optional-orange)
+![Pillow](https://img.shields.io/badge/Pillow-Image%20Processing-lightblue)
+
+### 🌐 Web & UI
+![FastAPI](https://img.shields.io/badge/FastAPI-Web%20Framework-teal?logo=fastapi)
+![Chainlit](https://img.shields.io/badge/Chainlit-Chat%20UI-orange)
+
+### 🔧 Tooling
+![Pydantic](https://img.shields.io/badge/Pydantic-Settings%20Validation-brightgreen)
+![dotenv](https://img.shields.io/badge/python--dotenv-.env%20Support-blue)
+![Black](https://img.shields.io/badge/black-code%20formatter-black)
+![Ruff](https://img.shields.io/badge/ruff-linter-orange)
+
 
 ## Setup
 
@@ -81,13 +121,29 @@ AZURE_OPENAI_DEPLOYMENT_NAME=gpt-35-turbo
 AZURE_OPENAI_EMBEDDING_DEPLOYMENT=text-embedding-ada-002
 api_version=2024-12-01-preview
 ```
-### Running the Application
+### Running the Application 
 
 To start the application locally, run: 
 ```bash
  chainlit run app/chainlit_app.py -w
 ```
 Your application will be available at http://127.0.0.1:8000.
+
+### ⚡ Running the Azure Function
+
+a) **Start azure function**:
+To test the RAG chatbot as an Azure Function, install Azure Functions Core Tools and run: 
+```bash
+ func start
+```
+
+b) **start chainlit app**:
+To start the application using azure function, run: 
+
+```bash
+ chainlit run app/main.py -w
+```
+
 
 ## Usage
 
@@ -101,7 +157,11 @@ Here's an overview of the project directory structure:
  chatbot-multimodal/
 ├── app/
 │   ├── __init__.py
-│   ├── chainlit_app.py         # Main Chainlit app for running the chatbot
+│   ├── main.py                 # main Chainlit app for running the chatbot
+│   ├── chainlit_app.py         # Chainlit app for running the chatbot
+│   ├── data/
+│   │   ├──faiss_index 
+│   │   └──docs
 │   ├── services/
 │   │   └── azure_openai.py     # Azure OpenAI wrapper for API calls
 │   ├── llm_validators/
@@ -123,6 +183,14 @@ Here's an overview of the project directory structure:
 
 
 ```
+## 🧯 Troubleshooting
+
+  - FAISS load errors: Ensure index is created and located at app/data/faiss_index.
+
+  -  Module import issues: Add the project root to PYTHONPATH.
+
+  - Python 3.13 not supported: Downgrade to Python 3.12.x.
+
 ## License
 
 xxx

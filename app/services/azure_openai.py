@@ -4,10 +4,11 @@ from openai import AzureOpenAI
 from typing import List, Optional
 import logging
 import os
-
+from langchain.embeddings.base import Embeddings
 from app.config.settings import get_settings
 
-logger = logging.getLogger(__name__)
+
+
 
 class AzureOpenAIWrapper:
     def __init__(self):
@@ -28,7 +29,7 @@ class AzureOpenAIWrapper:
 
         
    
-    def chat_completion(self, user_input: str, temperature: float = 0.2, max_tokens: int = 800) -> str:
+    async def chat_completion(self, user_input: str, temperature: float = 0.2, max_tokens: int = 800) -> str:
         try:
             response = self.client.chat.completions.create(
                 model=self.deployment_name,
@@ -44,13 +45,30 @@ class AzureOpenAIWrapper:
             logger.exception("Failed to generate chat completion")
             raise RuntimeError(f"Chat completion error: {str(e)}")
 
+    
     def get_embedding(self, text: str) -> List[float]:
         try:
             response = self.client.embeddings.create(
                 input=[text],
-                deployment_id=self.embedding_deployment
+                model=self.embedding_deployment
             )
             return response.data[0].embedding
         except Exception as e:
             logger.exception("Failed to generate embedding")
             raise RuntimeError(f"Embedding error: {str(e)}")
+    
+    def get_embedding_function(self) -> Embeddings:
+        """
+        Returns an object compatible with LangChain embedding APIs.
+        """
+        class AzureEmbeddingWrapper(Embeddings):
+            def __init__(self, client):
+                self.client = client
+
+            def embed_documents(self, texts: List[str]) -> List[List[float]]:
+                return [self.client.get_embedding(text) for text in texts]
+
+            def embed_query(self, text: str) -> List[float]:
+                return self.client.get_embedding(text)
+
+        return AzureEmbeddingWrapper(self)
