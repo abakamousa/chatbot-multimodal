@@ -114,12 +114,22 @@ This will automatically install the dependencies defined in your pyproject.toml 
 e) **Set up environment variables**:
 
 ```ini
-# Azure OpenAI Settings
-AZURE_OPENAI_API_KEY=your-azure-api-key
-AZURE_OPENAI_ENDPOINT=https://your-resource-name.openai.azure.com/
-AZURE_OPENAI_DEPLOYMENT_NAME=gpt-35-turbo
+# Azure OpenAI Settings (Production)
+AZURE_OPENAI_API_KEY=your-production-azure-api-key
+AZURE_OPENAI_ENDPOINT=https://your-production-resource-name.openai.azure.com/
+AZURE_OPENAI_DEPLOYMENT_NAME=gpt-4
 AZURE_OPENAI_EMBEDDING_DEPLOYMENT=text-embedding-ada-002
-api_version=2024-12-01-preview
+AZURE_OPENAI_API_VERSION=2024-12-01-preview
+
+# Azure Function Settings
+FUNCTION_ENVIRONMENT=production
+FUNCTION_ENABLE_LOGGING=True
+FUNCTION_ENABLE_PROMPT_VALIDATION=True
+FUNCTION_ENABLE_RELEVANCE_VALIDATION=True
+
+# App Insights (real key)
+APPINSIGHTS_CONNECTION_STRING=InstrumentationKey=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+
 ```
 ### Running the Application 
 
