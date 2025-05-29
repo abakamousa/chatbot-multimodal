@@ -61,6 +61,10 @@ qa_chain = RetrievalQA.from_chain_type(
 )
 
 def chat_with_rag(user_input: str, image_path: Optional[str] = None, system_prompt: Optional[str] = None) -> str:
+    """
+    Runs the RAG pipeline: retrieves relevant documents and generates an answer.
+    Optionally appends image captions and uses a system prompt.
+    """
     try:
         # Append image caption if provided
         if image_path:
@@ -69,11 +73,22 @@ def chat_with_rag(user_input: str, image_path: Optional[str] = None, system_prom
             image_captions = "\n".join([doc.page_content for doc in docs])
             user_input += f"\n\nImage Content:\n{image_captions}"
 
-        # Compose system prompt if needed (LangChain may not use it directly here)
-        final_input = f"{system_prompt or 'You are a helpful assistant.'}\n\n{user_input}"
+        # Prepare input for the chain
+        prompt = system_prompt or "You are a helpful assistant."
+        
+        chain_input = {
+            "query": user_input,
+        }
+        if "system_prompt" in qa_chain.input_keys:
+            chain_input["system_prompt"] = prompt
+        else:
+            chain_input["query"] = f"{prompt}\n\n{user_input}"
 
-        result = qa_chain.run(final_input)
-        return result
+        result = qa_chain(chain_input)
+        # result is a dict if return_source_documents=True
+        if isinstance(result, dict) and "result" in result:
+            return result["result"]
+        return str(result)
 
     except Exception as e:
         return f"⚠️ Error during RAG or LLM response: {str(e)}"

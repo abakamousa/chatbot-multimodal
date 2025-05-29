@@ -4,3 +4,4 @@ chainlit.md
 .python_packages
 __pycache__
 .venv
+.chainlit*

@@ -131,6 +131,18 @@ FUNCTION_ENABLE_RELEVANCE_VALIDATION=True
 APPINSIGHTS_CONNECTION_STRING=InstrumentationKey=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 
 ```
+f) **Create the FAISS index**
+
+Before running the chatbot, you must create the FAISS vector index from your PDF documents. This step is required for semantic search to work.
+
+From the project root, run:
+
+```bash
+python -m app.chains.create_faiss_index
+```
+
+This will process all PDF files in `app/data/docs/` and generate the FAISS index files in `app/data/faiss_index/`.  
+If you add or update documents, re-run this command to refresh the index.
 ### Running the Application 
 
 To start the application locally, run: 

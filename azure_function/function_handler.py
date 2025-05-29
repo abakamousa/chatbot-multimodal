@@ -28,12 +28,16 @@ async def main(req: func.HttpRequest) -> func.HttpResponse:
         user_input = req_body.get("message")
 
         if not user_input:
-            return func.HttpResponse("Missing 'message' in request body.", status_code=400)
+            return func.HttpResponse(
+                json.dumps({"error": "Missing 'message' in request body."}),
+                status_code=400,
+                mimetype="application/json"
+            )
 
         logger.info(f"Received message: {user_input}")
 
         # Run prompt injection check
-        is_prompt_injection =  prompt_validator.validate(user_input)
+        is_prompt_injection = prompt_validator.validate(user_input)
         if is_prompt_injection == "YES":
             logger.warning("Prompt injection detected.")
             return func.HttpResponse(
@@ -42,8 +46,6 @@ async def main(req: func.HttpRequest) -> func.HttpResponse:
                 mimetype="application/json"
             )
         # Generate response
-        #response = await azure_service.chat_completion(user_input)
-        # Call the chat_with_agent function from langchain_agent.py to get a response
         response = chat_with_rag(user_input)
         # Run answer relevance check (optional)
         is_relevant = relevance_validator.validate(user_input, response)
@@ -54,8 +56,6 @@ async def main(req: func.HttpRequest) -> func.HttpResponse:
                 status_code=400,
                 mimetype="application/json"
             )
-
-       
 
         return func.HttpResponse(
             json.dumps({"response": response}),

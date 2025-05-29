@@ -18,10 +18,17 @@ async def on_message(message: cl.Message):
                 timeout=30
             )
             res.raise_for_status()
-            data = res.json()
-            reply = data.get("response", "No response.")
+            if res.text:
+                data = res.json()
+                reply = data.get("response", "No response.")
+            else:
+                reply = "❌ Error: Empty response from server."
         except httpx.HTTPStatusError as e:
-            reply = f"❌ Error: {e.response.json().get('error', str(e))}"
+            try:
+                error_detail = e.response.json().get('error', str(e))
+            except Exception:
+                error_detail = str(e)
+            reply = f"❌ Error: {error_detail}"
         except Exception as e:
             reply = f"⚠️ Unexpected error: {str(e)}"
 
