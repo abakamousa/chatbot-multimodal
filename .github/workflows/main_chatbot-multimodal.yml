@@ -33,6 +33,12 @@ jobs:
         source .venv/bin/activate
         uv sync
 
+    # Azure Login (required for deployment)
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
     # Deploy Azure Function
     - name: Deploy Azure Function App
       uses: Azure/functions-action@v1
