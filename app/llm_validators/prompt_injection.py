@@ -10,7 +10,7 @@ class PromptInjectionValidator(Validator):
     def __init__(self, openai_service: AzureOpenAIWrapper):
         self.openai_service = openai_service
 
-    def validate(self, user_input: str) -> bool:
+    async def validate(self, user_input: str) -> bool:
         """Detects if the user input contains prompt injection attempts."""
         
         # Basic checks: if the input is too short or common, it's not an injection attempt
@@ -36,7 +36,7 @@ class PromptInjectionValidator(Validator):
         
         try:
             # Ask Azure OpenAI to validate the prompt
-            response = self.openai_service.chat_completion(prompt)
+            response = await self.openai_service.chat_completion(prompt)
             
         
 

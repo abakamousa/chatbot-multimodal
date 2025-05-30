@@ -10,7 +10,7 @@ class AnswerRelevanceValidator(Validator):
     def __init__(self, openai_service: AzureOpenAIWrapper):
         self.openai_service = openai_service
 
-    def validate(self, question: str, answer: str) -> bool:
+    async def validate(self, question: str, answer: str) -> bool:
         """Validates whether the given answer is relevant to the question."""
         prompt = (
             "You are a helpful assistant evaluating the relevance of answers given to user questions.\n\n"
@@ -21,7 +21,7 @@ class AnswerRelevanceValidator(Validator):
         )
 
         try:
-            response = self.openai_service.chat_completion(prompt)
+            response = await self.openai_service.chat_completion(prompt)
             
 
             logger.info(f"Answer Relevance Validator response: {response}")

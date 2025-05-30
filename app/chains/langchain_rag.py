@@ -11,7 +11,8 @@ from langchain.embeddings.base import Embeddings
 from app.config.settings import get_settings
 from app.services.azure_openai import AzureOpenAIWrapper
 from langchain.document_loaders import ImageCaptionLoader
-from langchain.chat_models import ChatOpenAI  # or use AzureChatOpenAI if needed
+#from langchain.chat_models import ChatOpenAI  # or use AzureChatOpenAI if needed
+from langchain.chat_models import AzureChatOpenAI
 
 settings = get_settings()
 openai_client = AzureOpenAIWrapper()
@@ -38,7 +39,7 @@ if not os.path.exists(os.path.join(FAISS_INDEX_PATH, "index.faiss")):
 # Load FAISS Vector Store
 def load_vector_store() -> FAISS:
     embedding_model = CustomAzureEmbedding(openai_client)
-    return FAISS.load_local(FAISS_INDEX_PATH, embeddings=embedding_model)
+    return FAISS.load_local(FAISS_INDEX_PATH, embeddings=embedding_model, allow_dangerous_deserialization=True)
 
 
 
@@ -46,15 +47,13 @@ def load_vector_store() -> FAISS:
 vector_store = load_vector_store()
 retriever = vector_store.as_retriever(search_kwargs={"k": 3})
 
-# Optionally use AzureChatOpenAI here if you want to use LangChain's abstraction
 qa_chain = RetrievalQA.from_chain_type(
-    llm=ChatOpenAI(
+    llm=AzureChatOpenAI(
         temperature=0,
         openai_api_key=settings.azure_openai_api_key,
-        openai_api_base=settings.azure_openai_endpoint,
-        openai_api_type="azure",
-        openai_api_version=settings.azure_openai_api_version,
-        model_name=settings.azure_openai_deployment_name
+        azure_endpoint=settings.azure_openai_endpoint,
+        api_version=settings.azure_openai_api_version,
+        deployment_name=settings.azure_openai_deployment_name
     ),
     retriever=retriever,
     return_source_documents=True

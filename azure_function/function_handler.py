@@ -35,27 +35,32 @@ async def main(req: func.HttpRequest) -> func.HttpResponse:
             )
 
         logger.info(f"Received message: {user_input}")
-
-        # Run prompt injection check
-        is_prompt_injection = prompt_validator.validate(user_input)
-        if is_prompt_injection == "YES":
-            logger.warning("Prompt injection detected.")
-            return func.HttpResponse(
-                json.dumps({"error": "Prompt injection attempt detected."}),
-                status_code=400,
-                mimetype="application/json"
-            )
+        # Prompt injection validation (if enabled)
+        if settings.function_enable_prompt_validation:
+            logger.info("Prompt injection validation is enabled.")
+            # Run prompt injection check
+            is_prompt_injection = await prompt_validator.validate(user_input)
+            if is_prompt_injection == "YES":
+                logger.warning("Prompt injection detected.")
+                return func.HttpResponse(
+                    json.dumps({"error": "Prompt injection attempt detected."}),
+                    status_code=400,
+                    mimetype="application/json"
+                )
         # Generate response
         response = chat_with_rag(user_input)
-        # Run answer relevance check (optional)
-        is_relevant = relevance_validator.validate(user_input, response)
-        if is_relevant == "NO":
-            logger.warning("Input deemed not relevant.")
-            return func.HttpResponse(
-                json.dumps({"error": "Input does not seem relevant to the expected context."}),
-                status_code=400,
-                mimetype="application/json"
-            )
+        # Answer relevance validation (if enabled)
+        if settings.function_enable_relevance_validation:
+            logger.info("Answer relevance validation is enabled.")
+            # Run answer relevance check
+            is_relevant = await relevance_validator.validate(user_input, response)
+            if is_relevant == "NO":
+                logger.warning("Input deemed not relevant.")
+                return func.HttpResponse(
+                    json.dumps({"error": "Input does not seem relevant to the expected context."}),
+                    status_code=400,
+                    mimetype="application/json"
+                )
 
         return func.HttpResponse(
             json.dumps({"response": response}),

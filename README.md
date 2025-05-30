@@ -1,5 +1,6 @@
 # Chatbot Multimodal Application
 
+A robust, Azure-powered Retrieval-Augmented Generation (RAG) chatbot that supports both text and image-based queries. Built with LangChain, FAISS, Azure OpenAI, and Chainlit for a modern, multimodal conversational experience.
 
 
 ## Table of Contents
@@ -9,8 +10,9 @@
 - [Setup](#setup)
   - [1. Prerequisites](#1-prerequisites)
   - [2. Setup Instructions](#2-setup-instructions)
-  - [3. Running the Application](#3-running-the-application)
-  - [4. Running the Azure Function](#4-running-the-azure-function)
+  - [3. Creating the FAISS Index](#3-creating-the-faiss-index)
+  - [4. Running the Application](#4-running-the-application)
+  - [5. Running the Azure Function](#5-running-the-azure-function)
 - [Usage](#usage)
 - [Troubleshooting](#troubleshooting)
 - [Project Structure](#project-structure)
@@ -21,28 +23,24 @@
 
 ## 📘 Project Overview
 
-**Chatbot Multimodal** is an intelligent, Azure-powered RAG (Retrieval-Augmented Generation) system built to handle both text and image-based queries. It leverages enterprise-grade capabilities like **Azure OpenAI**, **FAISS vector search**, and **LangChain** to provide accurate, context-aware responses based on a knowledge base of PDF documents and optional image inputs. It includes additional features like **Prompt Injection Validation** and **Answer Relevance Validation** to ensure high-quality and relevant responses.
+**Chatbot Multimodal** is an intelligent, enterprise-ready chatbot that leverages:
+- **Azure OpenAI** for advanced language understanding,
+- **FAISS** for fast semantic search over your documents,
+- **LangChain** for RAG pipelines,
+- **Chainlit** for a modern chat UI.
+
+It supports both text and image queries, and includes prompt injection and answer relevance validation for security and quality.
+
 
 ### 💡 Key Features
 
-- **Document Intelligence**  
-  Ingests and processes PDFs using LangChain and PDFMiner.
-
-- **RAG Pipeline**  
-  Combines document retrieval with Azure OpenAI’s large language model for informed, contextual answers.
-
-- **Vector Store with FAISS**  
-  Embeds and indexes documents for efficient semantic search.
-
-- **Image Captioning (Optional)**  
-  Enhances responses by generating and incorporating captions for user-provided images.
-
-- **Modern Chat Interface**  
-  Interact through a Chainlit-powered chat UI for a seamless user experience.
-
-- **Serverless API Integration**  
-  Deployable via Azure Functions for scalable and cloud-native access.
-
+- **Document Intelligence:** Ingests and processes PDFs for knowledge retrieval.
+- **RAG Pipeline:** Combines document retrieval with Azure OpenAI for contextual answers.
+- **Vector Store with FAISS:** Efficient semantic search over your knowledge base.
+- **Image Captioning (Optional):** Enhances responses with image understanding.
+- **Modern Chat Interface:** Built with Chainlit for a seamless user experience.
+- **Serverless API:** Deployable via Azure Functions for scalable, cloud-native access.
+- **Security:** Prompt injection and answer relevance validation.
 
 
 ## 🧰 Technologies Used
@@ -109,7 +107,7 @@ d) **Install required dependencies using uv**:
 ```bash
 uv sync
 ```
-This will automatically install the dependencies defined in your pyproject.toml file.
+This will automatically install all the dependencies from `pyproject.toml`
 
 e) **Set up environment variables**:
 
@@ -133,7 +131,7 @@ APPINSIGHTS_CONNECTION_STRING=InstrumentationKey=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxx
 ```
 f) **Create the FAISS index**
 
-Before running the chatbot, you must create the FAISS vector index from your PDF documents. This step is required for semantic search to work.
+Before running the chatbot, you **must** create the FAISS vector index from your PDF documents. This step is required for semantic search to work.
 
 From the project root, run:
 
@@ -143,15 +141,15 @@ python -m app.chains.create_faiss_index
 
 This will process all PDF files in `app/data/docs/` and generate the FAISS index files in `app/data/faiss_index/`.  
 If you add or update documents, re-run this command to refresh the index.
-### Running the Application 
+### 4. Running the Application 
 
-To start the application locally, run: 
+To start the Chainlit chat UI  locally, run: 
 ```bash
  chainlit run app/chainlit_app.py -w
 ```
 Your application will be available at http://127.0.0.1:8000.
 
-### ⚡ Running the Azure Function
+### ⚡ 5. Running the Azure Function
 
 a) **Start azure function**:
 To test the RAG chatbot as an Azure Function, install Azure Functions Core Tools and run: 
@@ -169,49 +167,65 @@ To start the application using azure function, run:
 
 ## Usage
 
-Once the application is running, you can interact with the chatbot via the provided chat interface. The chatbot utilizes Azure OpenAI for generating responses, while validating both inputs and outputs to ensure security and relevance.
+Once running, interact with the chatbot via the Chainlit UI.  
+- The chatbot uses Azure OpenAI for responses.
+- All inputs and outputs are validated for security and relevance.
+
+
+## 🧯 ## Troubleshooting
+
+- **FAISS load errors:**  
+  Ensure the index is created and located at `app/data/faiss_index/`.
+
+- **Module import issues:**  
+  Run all commands from the project root, or set `PYTHONPATH` to the project root.
+
+- **Python 3.13 not supported:**  
+  Use Python 3.12.x.
+
+- **Azure Function not loading:**  
+  Check `function.json` and ensure all dependencies are installed.
+
+- **ModuleNotFoundError: No module named 'app':**  
+  Run scripts as modules from the project root, e.g.,  
+  `python -m app.chains.create_faiss_index`
+
+---
 
 ## Project Structure
 
-Here's an overview of the project directory structure:
-
 ```bash
- chatbot-multimodal/
+chatbot-multimodal/
 ├── app/
 │   ├── __init__.py
-│   ├── main.py                 # main Chainlit app for running the chatbot
-│   ├── chainlit_app.py         # Chainlit app for running the chatbot
+│   ├── main.py                 # Chainlit app for Azure Function backend
+│   ├── chainlit_app.py         # Main Chainlit chat UI
 │   ├── data/
-│   │   ├──faiss_index 
-│   │   └──docs
+│   │   ├── faiss_index         # FAISS vector index files
+│   │   └── docs                # PDF documents
 │   ├── services/
-│   │   └── azure_openai.py     # Azure OpenAI wrapper for API calls
+│   │   └── azure_openai.py     # Azure OpenAI wrapper
 │   ├── llm_validators/
 │   │   ├── __init__.py
-│   │   ├── base.py             # Base validator class
-│   │   ├── prompt_injection.py # Prompt injection validation logic
-│   │   └── answer_relevance.py # Answer relevance validation logic
+│   │   ├── base.py
+│   │   ├── prompt_injection.py
+│   │   └── answer_relevance.py
 │   ├── utils/
-│   │   └── helpers.py          # Helper functions, including logging setup
+│   │   └── helpers.py
 │   ├── config/
-│   │   └── settings.py         # Configuration settings (Pydantic)
-├── azure_functions/            # Directory for Azure Function-related code
-│   ├── __init__.py             # Azure function initialization
-│   ├── function_handler.py     # Logic for handling Azure Functions (e.g., HTTP triggers)
-│   └── function_config.py      # Azure function configuration settings (if needed)
-├── .env                        # Environment variables (API keys, etc.)
-├── pyproject.toml              # Project metadata and dependencies (using UV)
-└── README.md                   # This README file
-
-
+│   │   └── settings.py
+│   └── chains/
+│       ├── langchain_rag.py
+│       └── create_faiss_index.py
+├── azure_functions/
+│   ├── __init__.py
+│   ├── function_handler.py
+│   └── function_config.py
+├── .env
+├── pyproject.toml
+└── README.md
 ```
-## 🧯 Troubleshooting
 
-  - FAISS load errors: Ensure index is created and located at app/data/faiss_index.
-
-  -  Module import issues: Add the project root to PYTHONPATH.
-
-  - Python 3.13 not supported: Downgrade to Python 3.12.x.
 
 ## License
 

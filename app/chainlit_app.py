@@ -4,14 +4,16 @@ import chainlit as cl
 from app.services.azure_openai import AzureOpenAIWrapper
 from app.llm_validators.prompt_injection import PromptInjectionValidator
 from app.llm_validators.answer_relevance import AnswerRelevanceValidator
-from app.utils.helpers import logger
+from app.utils.helpers import get_logger
 from app.config.settings import get_settings
+from app.chains.langchain_rag import chat_with_rag
 
 
 
 
 
 settings = get_settings()
+logger = get_logger(__name__)
 
 # Initialize AzureOpenAIWrapper
 openai_service = AzureOpenAIWrapper()
@@ -28,7 +30,7 @@ async def on_message(message: str):
     logger.info(f"Received message: {message}")
 
     # 1. Validate prompt injection
-    if prompt_injection_validator.validate(message)== "YES":
+    if await prompt_injection_validator.validate(message)== "YES":
         logger.warning("Potential prompt injection detected.")
         await cl.Message(content="Potential prompt injection detected. Please rephrase your request.").send()
         return
@@ -36,14 +38,16 @@ async def on_message(message: str):
     # 2. Generate a response from the model using Azure OpenAI
     try:
         user_query = message.content
-        response = openai_service.chat_completion(user_query)
+        # Generate response
+        response = chat_with_rag(user_query)
+        #response = await openai_service.chat_completion(user_query)
     except Exception as e:
         logger.error(f"Error generating response: {e}")
         await cl.Message(content="Sorry, something went wrong while processing your request.").send()
         return
 
     # 3. Validate answer relevance (optional - this is an additional step to make sure the response is valid)
-    if answer_relevance_validator.validate(message, response) == "YES":
+    if await answer_relevance_validator.validate(message, response) == "YES":
         await cl.Message(content="The response seems irrelevant to your query. Please try again.").send()
         return
 
