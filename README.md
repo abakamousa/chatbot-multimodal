@@ -191,7 +191,6 @@ Once running, interact with the chatbot via the Chainlit UI.
   `python -m app.chains.create_faiss_index`
 
 ---
-
 ## Project Structure
 
 ```bash
@@ -201,8 +200,8 @@ chatbot-multimodal/
 │   ├── main.py                 # Chainlit app for Azure Function backend
 │   ├── chainlit_app.py         # Main Chainlit chat UI
 │   ├── data/
-│   │   ├── faiss_index         # FAISS vector index files
-│   │   └── docs                # PDF documents
+│   │   ├── faiss_index/        # FAISS vector index files
+│   │   └── docs/               # PDF documents for ingestion
 │   ├── services/
 │   │   └── azure_openai.py     # Azure OpenAI wrapper
 │   ├── llm_validators/
@@ -217,14 +216,74 @@ chatbot-multimodal/
 │   └── chains/
 │       ├── langchain_rag.py
 │       └── create_faiss_index.py
-├── azure_functions/
+├── azure_function/
 │   ├── __init__.py
 │   ├── function_handler.py
 │   └── function_config.py
 ├── .env
 ├── pyproject.toml
-└── README.md
+├── README.md
+└── .github/
+    └── workflows/
+        └── main_chatbot-multimodal.yml
 ```
+
+
+## CI/CD: Automated Deployment with GitHub Actions & Azure
+
+This project uses **GitHub Actions** for continuous integration and deployment to Azure.
+
+### Workflow Overview
+
+- On every push to the `main` branch:
+  - The workflow checks out the code, sets up Python, and installs dependencies.
+  - It logs in to Azure using a service principal.
+  - Deploys the Azure Function (`azure_function/`).
+  - Deploys the Chainlit web app (`app/`).
+
+### Setup Steps
+
+1. **Create an Azure Service Principal**
+
+   In Azure CLI, run:
+   ```sh
+   az ad sp create-for-rbac --name "github-action-sp" --role contributor --scopes /subscriptions/<SUBSCRIPTION_ID>/resourceGroups/<RESOURCE_GROUP> --sdk-auth
+   ```
+   Copy the JSON output.
+
+2. **Add GitHub Secret**
+
+   - Go to your GitHub repo → Settings → Secrets and variables → Actions.
+   - Add a new secret named `AZURE_CREDENTIALS` and paste the JSON output.
+
+3. **Configure Workflow Variables**
+
+   In `.github/workflows/main_chatbot-multimodal.yml`, ensure these environment variables match your Azure setup:
+   ```yaml
+   env:
+     AZURE_WEBAPP_NAME: <your-webapp-name>
+     AZURE_FUNCTIONAPP_NAME: <your-functionapp-name>
+     AZURE_RESOURCE_GROUP: <your-resource-group>
+   ```
+
+4. **Workflow File**
+
+   The workflow file is located at:
+   ```
+   .github/workflows/main_chatbot-multimodal.yml
+   ```
+   It contains all steps for build and deployment.
+
+### Manual Trigger
+
+You can also trigger the workflow manually from the GitHub Actions tab.
+
+### Troubleshooting
+
+- **Login errors:** Ensure your `AZURE_CREDENTIALS` secret is correct and contains `clientId`, `clientSecret`, and `tenantId`.
+- **Deployment errors:** Check the Actions logs for details and verify your Azure resource names.
+
+---
 
 
 ## License
