@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      AZURE_WEBAPP_NAME: demo-chatbot-multimodal
+      AZURE_WEBAPP_NAME: demo-multimodal-rag
       AZURE_FUNCTIONAPP_NAME: chatbot-multimodal
       AZURE_RESOURCE_GROUP: demoabm
 
