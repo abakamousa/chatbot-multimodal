@@ -2,7 +2,7 @@ import chainlit as cl
 import httpx
 import os
 
-AZURE_FUNCTION_URL = "http://localhost:7071/api/chatbot" #os.getenv("AZURE_FUNCTION_URL")  # e.g., "https://your-func-name.azurewebsites.net/api/chatbot"
+AZURE_FUNCTION_URL = "https://chatbot-multimodal.azurewebsites.net/"  #"http://localhost:7071/api/chatbot" #os.getenv("AZURE_FUNCTION_URL")  # e.g., "https://your-func-name.azurewebsites.net/api/chatbot"
 
 @cl.on_chat_start
 async def on_chat_start():
