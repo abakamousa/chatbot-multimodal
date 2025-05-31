@@ -32,6 +32,12 @@ jobs:
         uv venv
         source .venv/bin/activate
         uv sync
+    
+    # Ensure requirements.txt is present in both deployment folders
+    - name: Copy requirements.txt to app and azure_function
+      run: |
+        cp requirements.txt app/
+        cp requirements.txt azure_function/
 
     # Azure Login (required for deployment)
     - name: Azure Login

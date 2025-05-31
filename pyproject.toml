@@ -4,11 +4,11 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = [
+dependen5cies = [
     "azure-cognitiveservices-speech>=1.43.0",
     "azureml>=0.2.7",
     "black>=25.1.0",
-    "chainlit>=2.5.5",
+    "chainlit>=2.5.",
     "faiss-cpu>=1.11.0",
     "fastapi>=0.115.12",
     "langchain>=0.3.25",
