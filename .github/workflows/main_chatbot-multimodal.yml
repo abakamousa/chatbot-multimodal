@@ -17,6 +17,22 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+
+    - name: Install uv
+      run: |
+        curl -Ls https://astral.sh/uv/install.sh | bash
+        echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+    - name: Install project dependencies with uv
+      run: |
+        uv venv
+        source .venv/bin/activate
+        uv sync
+    
     # Ensure requirements.txt is present in both deployment folders
     - name: Copy requirements.txt to app and azure_function
       run: |
@@ -29,14 +45,14 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    # Deploy Azure Function (Oryx will build from requirements.txt in azure_function/)
+    # Deploy Azure Function
     - name: Deploy Azure Function App
       uses: Azure/functions-action@v1
       with:
         app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
         package: './azure_function'
 
-    # Deploy App Service (Oryx will build from requirements.txt in app/)
+    # Deploy App Service
     - name: Deploy Web App
       uses: azure/webapps-deploy@v2
       with:
