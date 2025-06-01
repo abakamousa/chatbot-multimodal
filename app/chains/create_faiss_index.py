@@ -7,6 +7,8 @@ import os
 openai_client = AzureOpenAIWrapper()
 embedding_model = openai_client.get_embedding_function()
 
+
+# Define base directories for PDFs and FAISS index storage
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 pdf_directory = os.path.join(BASE_DIR, "data", "docs")
 faiss_index_directory = os.path.join(BASE_DIR, "data", "faiss_index")
@@ -18,6 +20,7 @@ for filename in os.listdir(pdf_directory):
         loader = PyPDFLoader(os.path.join(pdf_directory, filename))
         documents.extend(loader.load())
 
+# Split documents into chunks for embedding and retrieval
 splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
 split_docs = splitter.split_documents(documents)
 

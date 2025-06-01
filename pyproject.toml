@@ -25,6 +25,16 @@ dependen5cies = [
     "unstructured>=0.17.2",
     "uvicorn>=0.34.2",
 ]
+dependencies = [
+    "chainlit>=2.5.5",
+    "faiss-cpu>=1.11.0",
+    "langchain>=0.3.25",
+    "langchain-community>=0.3.24",
+    "openai>=1.82.1",
+    "opencensus-ext-azure>=1.1.14",
+    "pydantic>=2.11.5",
+    "pydantic-settings>=2.9.1",
+]
 
 [tool.black]
 line-length = 88
