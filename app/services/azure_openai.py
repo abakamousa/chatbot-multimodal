@@ -4,10 +4,11 @@ from openai import AzureOpenAI
 from typing import List, Optional
 import logging
 import os
+from app.utils.helpers import get_logger
 from langchain.embeddings.base import Embeddings
 from app.config.settings import get_settings
 
-
+logger = get_logger(__name__)
 
 
 class AzureOpenAIWrapper:
@@ -42,7 +43,7 @@ class AzureOpenAIWrapper:
             )
             return response.choices[0].message.content 
         except Exception as e:
-            logger.exception("Failed to generate chat completion")
+            logger.warning("Failed to generate chat completion")
             raise RuntimeError(f"Chat completion error: {str(e)}")
 
     
