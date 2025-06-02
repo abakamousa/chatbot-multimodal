@@ -12,27 +12,36 @@ import torch
 import io
 import asyncio
 
-# Load LLaVA-1.5 model and processor once (global, outside the function for efficiency)
-processor = AutoProcessor.from_pretrained("llava-hf/llava-1.5-7b-hf")
-model = LlavaForConditionalGeneration.from_pretrained("llava-hf/llava-1.5-7b-hf").to("cuda" if torch.cuda.is_available() else "cpu")
+
 
 async def caption_image(image_bytes: bytes) -> str:
     """
-    Generate a caption for an image using LLaVA-1.5 model.
+    Generate a caption for an image using OpenAI's GPT-4o model.
     :param image_bytes: The image in bytes.
     :return: Caption string.
     """
-    # Load image from bytes
-    image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
-    prompt = "Describe this image in one sentence."
+    openai_service = AzureOpenAIWrapper()
 
-    inputs = processor(prompt, image, return_tensors="pt").to(model.device)
-    output = model.generate(**inputs, max_new_tokens=60)
-    caption = processor.decode(output[0], skip_special_tokens=True)
-    # LLaVA returns the prompt + answer, so remove the prompt
-    if caption.lower().startswith(prompt.lower()):
-        caption = caption[len(prompt):].strip()
-    return caption.strip()
+    img_b64 = base64.b64encode(image_bytes).decode("utf-8")
+    messages = [
+        {
+            "role": "user",
+            "content": [
+                {"type": "text", "text": "Describe this image in one sentence."},
+                {
+                    "type": "image_url",
+                    "image_url": {
+                        "url": f"data:image/jpeg;base64,{img_b64}"
+                    }
+                }
+            ]
+        }
+    ]
+    
+    response = await openai_service.chat_completion(messages)
+    print(f"Generated caption: {response.strip()}")
+    return response.strip()
+
 
 # --- Main async indexing logic ---
 async def main():

@@ -34,10 +34,7 @@ class AzureOpenAIWrapper:
         try:
             response = self.client.chat.completions.create(
                 model=self.deployment_name,
-                messages=[
-                    {"role": "system", "content": "You are a helpful assistant."},
-                    {"role": "user", "content": user_input}
-                ],
+                messages= user_input,
                 temperature=temperature,
                 max_tokens=max_tokens
             )
