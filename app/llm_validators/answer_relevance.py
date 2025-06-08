@@ -21,7 +21,10 @@ class AnswerRelevanceValidator(Validator):
         )
 
         try:
-            response = await self.openai_service.chat_completion(prompt)
+            messages = [
+                {"role": "user", "content": prompt}
+            ]
+            response = await self.openai_service.chat_completion(messages)
             
 
             logger.info(f"Answer Relevance Validator response: {response}")

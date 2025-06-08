@@ -39,6 +39,14 @@ jobs:
         cp requirements.txt app/
         cp requirements.txt azure_function/
 
+    # --- Install dependencies for Azure Function App ---
+    - name: Install Azure Function dependencies
+      run: |
+        cd azure_function
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt --target=".python_packages/lib/site-packages"
+        cd ..
+
     - name: Azure Login
       uses: azure/login@v1
       with:

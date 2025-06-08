@@ -35,8 +35,11 @@ class PromptInjectionValidator(Validator):
         )
         
         try:
+            messages = [
+                {"role": "user", "content": prompt}
+            ]
             # Ask Azure OpenAI to validate the prompt
-            response = await self.openai_service.chat_completion(prompt)
+            response = await self.openai_service.chat_completion(messages)
             
         
 
