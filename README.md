@@ -1,6 +1,6 @@
 # Chatbot Multimodal Application
 
-A robust, Azure-powered Retrieval-Augmented Generation (RAG) chatbot that supports both text and image-based queries. Built with LangChain, FAISS, Azure OpenAI, and Chainlit for a modern, multimodal conversational experience.
+A robust, Azure-powered Retrieval-Augmented Generation (RAG) chatbot that supports both text and image-based queries. Built with LangChain, FAISS, Azure OpenAI, and Chainlit for a modern, multimodal conversational experience with guardrails validation.
 
 
 ## Table of Contents
